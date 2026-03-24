@@ -9,12 +9,15 @@ const app     = express();
 const srv     = http.createServer(app);
 const io      = new Server(srv,{cors:{origin:'*',methods:['GET','POST']}});
 
-// Serve static files from the Chess2d folder
-app.use(express.static(path.join(__dirname, 'Chess2d')));
+// Serve static files — works both locally (Chess2d subfolder) and on Render (same dir)
+const PUBLIC = require('fs').existsSync(path.join(__dirname, 'Chess2d'))
+  ? path.join(__dirname, 'Chess2d')   // local: files are in Chess2d/
+  : __dirname;                         // Render: files are in root
 
-// Fallback to index.html inside Chess2d for any unmatched routes
+app.use(express.static(PUBLIC));
+
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Chess2d', 'index.html'));
+  res.sendFile(path.join(PUBLIC, 'index.html'));
 });
 
 // ── State ────────────────────────────────────────────────────
